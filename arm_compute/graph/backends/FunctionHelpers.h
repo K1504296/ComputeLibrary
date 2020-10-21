@@ -39,6 +39,11 @@
 #include "arm_compute/core/ITensorInfo.h"
 #include "support/Cast.h"
 
+#pragma GCC diagnostic push
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wpessimizing-move"
+#endif /* __clang__ */
+
 namespace arm_compute
 {
 namespace graph
@@ -266,7 +271,7 @@ std::unique_ptr<IFunction> create_fused_convolution_batch_normalization_layer(Fu
                                << " Output shape: " << output->info()->tensor_shape()
                                << (fused_act.enabled() ? " " + to_string(fused_act.activation()) : "")
                                << std::endl);
-    return RETURN_UNIQUE_PTR(func);
+    return std::move(func);
 }
 
 /** Create a backend fused depthwise convolution batch normalization layer function
@@ -542,7 +547,7 @@ std::unique_ptr<IFunction> create_convolution_layer(ConvolutionLayerNode &node, 
                                << qss.str()
                                << (fused_act.enabled() ? " " + to_string(fused_act.activation()) : "")
                                << std::endl);
-    return RETURN_UNIQUE_PTR(func);
+    return std::move(func);
 }
 
 /** Create a backend deconvolution layer function
@@ -648,7 +653,7 @@ std::unique_ptr<IFunction> create_depthwise_convolution_layer(DepthwiseConvoluti
                                << qss.str()
                                << (fused_act.enabled() ? " " + to_string(fused_act.activation()) : "")
                                << std::endl);
-    return RETURN_UNIQUE_PTR(func);
+    return std::move(func);
 }
 
 /** Create a backend depth to space layer function
@@ -895,7 +900,7 @@ std::unique_ptr<IFunction> create_eltwise_layer(EltwiseLayerNode &node)
                                << " Shape: " << input1->info()->tensor_shape()
                                << std::endl);
 
-    return RETURN_UNIQUE_PTR(func);
+    return std::move(func);
 }
 
 /** Create a backend unary element-wise operation layer function
@@ -943,7 +948,7 @@ std::unique_ptr<IFunction> create_unary_eltwise_layer(UnaryEltwiseLayerNode &nod
                                << " Shape: " << input->info()->tensor_shape()
                                << std::endl);
 
-    return RETURN_UNIQUE_PTR(func);
+    return std::move(func);
 }
 
 /** Create a backend flatten layer function
@@ -1932,5 +1937,7 @@ std::unique_ptr<IFunction> create_yolo_layer(YOLOLayerNode &node, GraphContext &
 } // namespace backends
 } // namespace graph
 } // namespace arm_compute
+
+#pragma GCC diagnostic pop
 
 #endif /* ARM_COMPUTE_GRAPH_BACKENDS_DETAIL_FUNCTION_HELPERS_H */
